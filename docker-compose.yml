@@ -12,8 +12,8 @@ services:
     ports:
       - '8080:8080'
     volumes:
-      - ./mnt/spark/apps:/opt/spark-apps
-      - ./mnt/spark/data:/opt/spark-data
+      - ./spark-apps:/opt/spark-apps
+      - ./spark-data:/opt/spark-data
   spark-worker:
     image: docker.io/bitnami/spark:3.3
     environment:
