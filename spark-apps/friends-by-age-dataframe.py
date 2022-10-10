@@ -1,26 +1,26 @@
 from pyspark.sql import SparkSession, Row
 
 
-def mapper(line):
-    fields = line.split(',')
-    return Row(Id=int(fields[0]), name=str(fields[1].encode("utf-8")), \
-               age=int(fields[2]), numFriends=int(fields[3]))
-
-
 def main():
     spark = SparkSession.builder.appName("SparkSQL").getOrCreate()    
     spark.sparkContext.setLogLevel("ERROR")
 
-    friendsDataRaw = spark.sparkContext.textFile("../spark-data/fakefriends.csv")
+    schema = "id int, name string, age int, numFriends int"
 
-    friendsDataMapped = friendsDataRaw.map(mapper)
+    firendsDF = (spark.read
+                            .option("header", "false")
+                            .option("inferSchema", "true")
+                            .csv("../spark-data/fakefriends.csv", 
+                                    schema=schema))
 
-    schemaFriends = spark.createDataFrame(friendsDataMapped).cache()
-    schemaFriends.createOrReplaceTempView("friends")
+    firendsDF.printSchema()
 
+    firendsDF.createOrReplaceTempView("friends")
 
-    schemaFriends.groupBy("age").count().orderBy("age").show()
+    # group using functions
+    firendsDF.groupBy("age").count().orderBy("age").show()
 
+    # group usins select statement
     friendsByAge = spark.sql("SELECT age, COUNT(Id) \
                               FROM friends GROUP BY age \
                               ORDER BY age")
