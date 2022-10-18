@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.regression import DecisionTreeRegressor
+from pyspark.ml import Transformer
 
 
 FILE_PATH = '../spark-data/realestate.csv'
@@ -33,9 +34,15 @@ def main() -> None :
     test = dfSplitted[1]
 
     trainTransformed = transformDataset(train)
-    trainTransformed.show()
+    testTransformed = transformDataset(test)
 
-    model = DecisionTreeRegressor(labelCol='PriceOfUnitArea')
+    decisionTree = DecisionTreeRegressor(labelCol='PriceOfUnitArea')
+    model : Transformer = decisionTree.fit(trainTransformed)
+
+    predictions = model.transform(testTransformed)
+    predictions.show()
+
+    spark.stop()
 
     return None
 
